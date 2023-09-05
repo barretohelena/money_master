@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+
+  app:
+    build:
+        args:
+          user: seu_usuario
+          uid: seu_uid
+        context: ./
+        dockerfile: Dockerfile
+    image: php7.0-apache
+    container_name: money_master
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+      - ./docker-compose/apache/apache2.conf:/etc/apache2/apache2.conf
+    ports:
+      - '8080:80'
+    networks:
+      - money_master
+
+  db:
+    image: mysql:5.7.22
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: money_master
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./docker-compose/mysql:/var/lib/mysql # /docker-entrypoint-initdb.d
+    networks:
+      - money_master
+
+networks:
+  money_master:
+    driver: bridge
